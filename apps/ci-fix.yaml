@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fermentation-station-agent-ci-fix
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/fermentation-station-agent.git
+    targetRevision: ci-fix
+    path: k8s
+    kustomize:
+      images:
+        - lukasball/fermentation-station-agent=lukasball/fermentation-station-agent:ci-fix
+      commonAnnotations:
+        prNumber: "30"
+        sha: 4a6dc0407237cc0902543e464f0644fa63112b2d
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ci-fix
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
