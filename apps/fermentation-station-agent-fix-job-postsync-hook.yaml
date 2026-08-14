@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fermentation-station-agent-fix-job-postsync-hook
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/fermentation-station-agent.git
+    targetRevision: fix-job-postsync-hook
+    path: k8s
+    kustomize:
+      images:
+        - lukasball/fermentation-station-agent=lukasball/fermentation-station-agent:fix-job-postsync-hook
+        - lukasball/fermentation-station-agent-integ-tests=lukasball/fermentation-station-agent-integ-tests:fix-job-postsync-hook
+      commonAnnotations:
+        prNumber: "36"
+        commitSha: 7e018e4d552428db81bc3b984cb8c9fbfdf1b9fa
+        repoSlug: lukasb27/fermentation-station-agent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fermentation-station-agent-fix-job-postsync-hook
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
