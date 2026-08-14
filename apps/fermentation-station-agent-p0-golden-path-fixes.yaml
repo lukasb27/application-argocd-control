@@ -17,7 +17,7 @@ spec:
         - lukasball/fermentation-station-agent-integ-tests=lukasball/fermentation-station-agent-integ-tests:p0-golden-path-fixes
       commonAnnotations:
         prNumber: "33"
-        commitSha: 37553e48628c3d3855589889a7a8dc0bc0de2625
+        commitSha: 961fdad909faf234134bc000deea69843ea0015d
         repoSlug: lukasb27/fermentation-station-agent
   destination:
     server: https://kubernetes.default.svc
