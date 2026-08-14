@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fermentation-station-agent-p0-golden-path-fixes
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/fermentation-station-agent.git
+    targetRevision: p0-golden-path-fixes
+    path: k8s
+    kustomize:
+      images:
+        - lukasball/fermentation-station-agent=lukasball/fermentation-station-agent:p0-golden-path-fixes
+        - lukasball/fermentation-station-agent-integ-tests=lukasball/fermentation-station-agent-integ-tests:p0-golden-path-fixes
+      commonAnnotations:
+        prNumber: "33"
+        commitSha: 37553e48628c3d3855589889a7a8dc0bc0de2625
+        repoSlug: lukasb27/fermentation-station-agent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fermentation-station-agent-p0-golden-path-fixes
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
