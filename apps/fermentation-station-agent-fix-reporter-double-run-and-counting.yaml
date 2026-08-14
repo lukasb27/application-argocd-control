@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fermentation-station-agent-fix-reporter-double-run-and-counting
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/fermentation-station-agent.git
+    targetRevision: fix-reporter-double-run-and-counting
+    path: k8s
+    kustomize:
+      images:
+        - lukasball/fermentation-station-agent=lukasball/fermentation-station-agent:fix-reporter-double-run-and-counting
+        - lukasball/fermentation-station-agent-integ-tests=lukasball/fermentation-station-agent-integ-tests:fix-reporter-double-run-and-counting
+      commonAnnotations:
+        prNumber: "35"
+        commitSha: 637ebfcfbb208e26eb4b8528b163c7e092ea7a2a
+        repoSlug: lukasb27/fermentation-station-agent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fermentation-station-agent-fix-reporter-double-run-and-counting
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
