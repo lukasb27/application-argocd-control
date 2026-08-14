@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lukas-test-main
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/lukas-test.git
+    targetRevision: main
+    path: k8s
+    kustomize:
+      images:
+        - ghcr.io/lukasb27/lukas-test=ghcr.io/lukasb27/lukas-test:main
+        - ghcr.io/lukasb27/lukas-test-integ-tests=ghcr.io/lukasb27/lukas-test-integ-tests:latest
+      commonAnnotations:
+        prNumber: ""
+        commitSha: main
+        repoSlug: lukasb27/lukas-test
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: lukas-test-main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
