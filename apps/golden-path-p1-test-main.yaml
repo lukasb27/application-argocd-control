@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: golden-path-p1-test-main
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/golden-path-p1-test.git
+    targetRevision: main
+    path: k8s
+    kustomize:
+      images:
+        - ghcr.io/lukasb27/golden-path-p1-test=ghcr.io/lukasb27/golden-path-p1-test:main
+        - ghcr.io/lukasb27/golden-path-p1-test-integ-tests=ghcr.io/lukasb27/golden-path-p1-test-integ-tests:latest
+      commonAnnotations:
+        prNumber: ""
+        commitSha: main
+        repoSlug: lukasb27/golden-path-p1-test
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: golden-path-p1-test-main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
