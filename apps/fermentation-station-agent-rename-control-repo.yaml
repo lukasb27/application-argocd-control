@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fermentation-station-agent-rename-control-repo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/fermentation-station-agent.git
+    targetRevision: rename-control-repo
+    path: k8s
+    kustomize:
+      images:
+        - lukasball/fermentation-station-agent=lukasball/fermentation-station-agent:rename-control-repo
+        - lukasball/fermentation-station-agent-integ-tests=lukasball/fermentation-station-agent-integ-tests:rename-control-repo
+      commonAnnotations:
+        prNumber: "37"
+        commitSha: 4b95fac74c04389e8855e93e88ebb822b476a191
+        repoSlug: lukasb27/fermentation-station-agent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fermentation-station-agent-rename-control-repo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
