@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lukas-test-rename-verify-main
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/lukas-test-rename-verify.git
+    targetRevision: main
+    path: k8s
+    kustomize:
+      images:
+        - ghcr.io/lukasb27/lukas-test-rename-verify=ghcr.io/lukasb27/lukas-test-rename-verify:main
+        - ghcr.io/lukasb27/lukas-test-rename-verify-integ-tests=ghcr.io/lukasb27/lukas-test-rename-verify-integ-tests:latest
+      commonAnnotations:
+        prNumber: ""
+        commitSha: main
+        repoSlug: lukasb27/lukas-test-rename-verify
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: lukas-test-rename-verify-main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
