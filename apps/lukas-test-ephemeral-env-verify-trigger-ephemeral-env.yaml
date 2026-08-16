@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lukas-test-ephemeral-env-verify-trigger-ephemeral-env
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/lukas-test-ephemeral-env-verify.git
+    targetRevision: trigger-ephemeral-env
+    path: k8s
+    kustomize:
+      images:
+        - ghcr.io/lukasb27/lukas-test-ephemeral-env-verify=ghcr.io/lukasb27/lukas-test-ephemeral-env-verify:trigger-ephemeral-env
+        - ghcr.io/lukasb27/lukas-test-ephemeral-env-verify-integ-tests=ghcr.io/lukasb27/lukas-test-ephemeral-env-verify-integ-tests:trigger-ephemeral-env
+      commonAnnotations:
+        prNumber: "1"
+        commitSha: d0724523370673d8572c44f8d0b53ab0725e8445
+        repoSlug: lukasb27/lukas-test-ephemeral-env-verify
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: lukas-test-ephemeral-env-verify-trigger-ephemeral-env
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
