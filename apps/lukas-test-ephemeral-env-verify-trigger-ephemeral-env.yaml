@@ -17,7 +17,7 @@ spec:
         - ghcr.io/lukasb27/lukas-test-ephemeral-env-verify-integ-tests=ghcr.io/lukasb27/lukas-test-ephemeral-env-verify-integ-tests:trigger-ephemeral-env
       commonAnnotations:
         prNumber: "1"
-        commitSha: d0724523370673d8572c44f8d0b53ab0725e8445
+        commitSha: 73f4420a505b8e1a6dcac3b2aed24374c31c3702
         repoSlug: lukasb27/lukas-test-ephemeral-env-verify
   destination:
     server: https://kubernetes.default.svc
