@@ -17,7 +17,7 @@ spec:
         - ghcr.io/lukasb27/lukas-e2e-20260819202749-integ-tests=ghcr.io/lukasb27/lukas-e2e-20260819202749-integ-tests:e2e-verify-run
       commonAnnotations:
         prNumber: "1"
-        commitSha: 28ad2a1fe7e260ea60d11cf62574f985d3809e2c
+        commitSha: b16b27a8007a8859b6f2b9bddc8bb2fcc2f2690e
         repoSlug: lukasb27/lukas-e2e-20260819202749
   destination:
     server: https://kubernetes.default.svc
