@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lukas-e2e-20260819202749-e2e-verify-run
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/lukas-e2e-20260819202749.git
+    targetRevision: e2e-verify-run
+    path: k8s
+    kustomize:
+      images:
+        - ghcr.io/lukasb27/lukas-e2e-20260819202749=ghcr.io/lukasb27/lukas-e2e-20260819202749:e2e-verify-run
+        - ghcr.io/lukasb27/lukas-e2e-20260819202749-integ-tests=ghcr.io/lukasb27/lukas-e2e-20260819202749-integ-tests:e2e-verify-run
+      commonAnnotations:
+        prNumber: "1"
+        commitSha: 28ad2a1fe7e260ea60d11cf62574f985d3809e2c
+        repoSlug: lukasb27/lukas-e2e-20260819202749
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: lukas-e2e-20260819202749-e2e-verify-run
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
