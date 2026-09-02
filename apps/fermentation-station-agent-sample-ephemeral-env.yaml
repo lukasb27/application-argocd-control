@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fermentation-station-agent-sample-ephemeral-env
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/fermentation-station-agent.git
+    targetRevision: sample-ephemeral-env
+    path: k8s
+    kustomize:
+      images:
+        - lukasball/fermentation-station-agent=lukasball/fermentation-station-agent:sample-ephemeral-env
+        - lukasball/fermentation-station-agent-integ-tests=lukasball/fermentation-station-agent-integ-tests:sample-ephemeral-env
+      commonAnnotations:
+        prNumber: "42"
+        commitSha: 2e048cdb1e160718676cb2eacbc2f5c472d9eba7
+        repoSlug: lukasb27/fermentation-station-agent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fermentation-station-agent-sample-ephemeral-env
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
