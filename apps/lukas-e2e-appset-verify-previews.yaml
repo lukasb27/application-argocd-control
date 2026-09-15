@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: lukas-e2e-appset-verify-previews
+  namespace: argocd
+spec:
+  # goTemplate + Sprig (trunc) needed for the 63-char truncation below — see
+  # docs/argocd-applicationset-migration-adr.md. Uses bare double-curly Go
+  # template syntax, not Backstage's dollar-prefixed Nunjucks delimiter, so
+  # Backstage's own templating pass leaves these untouched for Argo CD's
+  # controller to evaluate at generate-time. (Note for future editors: don't
+  # write that dollar-prefixed delimiter literally with nothing inside the
+  # braces in a comment here, even as an example — Backstage's templater
+  # still tries to evaluate it as a real, empty expression and fails.)
+  goTemplate: true
+  generators:
+    - pullRequest:
+        github:
+          owner: lukasb27
+          repo: lukas-e2e-appset-verify
+          # Only PRs docker.yml has labeled "preview" (i.e. both images have
+          # actually finished pushing) generate an Application — avoids the
+          # ImagePullBackOff race described in the ADR's Consequences.
+          labels:
+            - preview
+        tokenRef:
+          secretName: github-pr-generator-token
+          key: token
+  template:
+    metadata:
+      # Truncated to 63 chars (Kubernetes namespace/label limit) the same way
+      # ephemeral-env.yml's FULL_NAME was — a long branch name must not
+      # silently produce an invalid name here either.
+      name: '{{ trunc 63 (printf "%s-%s" "lukas-e2e-appset-verify" .branch_slug) }}'
+      namespace: argocd
+      # Must match today's ephemeral-env.yml behavior: without this,
+      # deleting the Application on PR-close no longer cascades
+      # namespace/Deployment deletion, reopening the orphaned-environment bug
+      # stale-environment-finder exists to detect.
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/lukasb27/lukas-e2e-appset-verify.git
+        # Pinned to the PR's exact commit, not the mutable branch name — the
+        # concrete bug this migration exists to fix.
+        targetRevision: '{{.head_sha}}'
+        path: k8s
+        kustomize:
+          # trunc 7 mitigates structurally rather than assuming Argo's
+          # head_short_sha and docker.yml's type=sha output already agree on
+          # length — see the ADR's now-resolved Open Questions.
+          images:
+            - ghcr.io/lukasb27/lukas-e2e-appset-verify=ghcr.io/lukasb27/lukas-e2e-appset-verify:sha-{{ trunc 7 .head_short_sha }}
+            - ghcr.io/lukasb27/lukas-e2e-appset-verify-integ-tests=ghcr.io/lukasb27/lukas-e2e-appset-verify-integ-tests:sha-{{ trunc 7 .head_short_sha }}
+          commonAnnotations:
+            prNumber: '{{.number}}'
+            commitSha: '{{.head_sha}}'
+            repoSlug: lukasb27/lukas-e2e-appset-verify
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ trunc 63 (printf "%s-%s" "lukas-e2e-appset-verify" .branch_slug) }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
