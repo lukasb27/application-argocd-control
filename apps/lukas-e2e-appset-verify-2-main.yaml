@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lukas-e2e-appset-verify-2-main
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/lukasb27/lukas-e2e-appset-verify-2.git
+    targetRevision: main
+    path: k8s
+    kustomize:
+      images:
+        - ghcr.io/lukasb27/lukas-e2e-appset-verify-2=ghcr.io/lukasb27/lukas-e2e-appset-verify-2:main
+        - ghcr.io/lukasb27/lukas-e2e-appset-verify-2-integ-tests=ghcr.io/lukasb27/lukas-e2e-appset-verify-2-integ-tests:latest
+      commonAnnotations:
+        prNumber: ""
+        commitSha: main
+        repoSlug: lukasb27/lukas-e2e-appset-verify-2
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: lukas-e2e-appset-verify-2-main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
